@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const logger = require('./logger');
+const logger = require('../utils/logger');
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 5000;
