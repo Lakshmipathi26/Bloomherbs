@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { FiHome, FiBox, FiGrid, FiShoppingBag, FiUsers, FiStar, FiPercent, FiSettings } from 'react-icons/fi';
+import { FiHome, FiBox, FiGrid, FiShoppingBag, FiUsers, FiStar, FiPercent, FiSettings, FiPackage, FiBarChart2, FiDownload, FiArrowLeft } from 'react-icons/fi';
 import styles from './AdminLayout.module.css';
 
 const NAV = [
@@ -10,6 +10,10 @@ const NAV = [
   { to: '/admin/customers', label: 'Customers', icon: <FiUsers /> },
   { to: '/admin/reviews', label: 'Reviews', icon: <FiStar /> },
   { to: '/admin/coupons', label: 'Coupons', icon: <FiPercent /> },
+  { to: '/admin/inventory', label: 'Inventory', icon: <FiPackage /> },
+  { to: '/admin/analytics', label: 'Analytics', icon: <FiBarChart2 /> },
+  { to: '/admin/reports', label: 'Reports', icon: <FiDownload /> },
+  { to: '/admin/settings', label: 'Settings', icon: <FiSettings /> },
 ];
 
 export default function AdminSidebar() {
@@ -25,7 +29,7 @@ export default function AdminSidebar() {
         ))}
       </nav>
       <div className={styles.bottom}>
-        <NavLink to="/" className={styles.link}><FiSettings /><span>Back to Site</span></NavLink>
+        <NavLink to="/" className={styles.link}><FiArrowLeft /><span>Back to Site</span></NavLink>
       </div>
     </aside>
   );
