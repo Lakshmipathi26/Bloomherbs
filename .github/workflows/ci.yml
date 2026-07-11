@@ -1,0 +1,74 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install server dependencies
+        run: cd server && npm install
+
+      - name: Install client dependencies
+        run: cd client && npm install
+
+      - name: Lint client
+        run: |
+          if grep -q '"lint"' client/package.json; then
+            cd client && npm run lint
+          else
+            echo "Lint script not found in client/package.json, skipping..."
+          fi
+
+      - name: Lint server
+        run: |
+          if grep -q '"lint"' server/package.json; then
+            cd server && npm run lint
+          else
+            echo "Lint script not found in server/package.json, skipping..."
+          fi
+
+      - name: Run client tests
+        run: |
+          if grep -q '"test"' client/package.json; then
+            cd client && npm run test -- --run
+          else
+            echo "Test script not found in client/package.json, skipping..."
+          fi
+
+      - name: Run server tests
+        run: |
+          if grep -q '"test"' server/package.json; then
+            cd server && npm run test
+          else
+            echo "Test script not found in server/package.json, skipping..."
+          fi
+
+      - name: Build client
+        run: cd client && npm run build
+
+      - name: Verify server syntax
+        run: |
+          cd server
+          node --check server.js
+          node --check app.js
+          node --check seed.js
