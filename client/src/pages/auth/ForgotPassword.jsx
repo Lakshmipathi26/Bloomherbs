@@ -4,16 +4,21 @@ import { useForm } from 'react-hook-form';
 import { FiMail } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { forgotPassword } from '../../redux/slices/authSlice';
 import SEO from '../../components/common/SEO';
 
 export default function ForgotPassword() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const dispatch = useDispatch();
-  const { loading } = useSelector((s) => s.auth);
+  const { loading, error } = useSelector((s) => s.auth);
 
   const onSubmit = async (data) => {
-    await dispatch(/* forgotPassword thunk to be added */ { type: 'placeholder' });
-    toast.success('Reset link sent to your email');
+    try {
+      await dispatch(forgotPassword(data.email)).unwrap();
+      toast.success('Reset link sent to your email');
+    } catch (err) {
+      toast.error(err || 'Failed to send reset email');
+    }
   };
 
   return (

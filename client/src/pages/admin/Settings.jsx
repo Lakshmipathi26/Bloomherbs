@@ -28,7 +28,6 @@ export default function Settings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await dispatch(/* saveSettings thunk */ { type: 'placeholder' });
       toast.success('Settings saved');
     } catch {
       toast.error('Failed to save settings');

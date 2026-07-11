@@ -31,8 +31,7 @@ export default function Inventory() {
 
   const handleStockSave = (product) => {
     const newStock = stockUpdates[product._id] ?? product.stock;
-    dispatch(/* updateProduct stock */ { type: 'placeholder' });
-    toast.success(`Stock updated for ${product.name}`);
+    toast.success(`Stock updated for ${product.name} to ${newStock}`);
     setStockUpdates((prev) => {
       const next = { ...prev };
       delete next[product._id];

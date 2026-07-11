@@ -1,21 +1,27 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FiLock } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { resetPassword } from '../../redux/slices/authSlice';
 import SEO from '../../components/common/SEO';
 
 export default function ResetPassword() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { token } = useParams();
   const { loading } = useSelector((s) => s.auth);
 
   const onSubmit = async (data) => {
-    await dispatch(/* resetPassword thunk to be added */ { type: 'placeholder' });
-    toast.success('Password reset successful');
-    navigate('/login');
+    try {
+      await dispatch(resetPassword({ token, password: data.password })).unwrap();
+      toast.success('Password reset successful');
+      navigate('/login');
+    } catch (err) {
+      toast.error(err || 'Failed to reset password');
+    }
   };
 
   return (

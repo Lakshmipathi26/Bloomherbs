@@ -35,6 +35,24 @@ export const logoutUser = createAsyncThunk('auth/logout', async () => {
   localStorage.removeItem('token');
 });
 
+export const forgotPassword = createAsyncThunk('auth/forgotPassword', async (email, { rejectWithValue }) => {
+  try {
+    const { data } = await api.post('/auth/forgot-password', { email });
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Failed to send reset email');
+  }
+});
+
+export const resetPassword = createAsyncThunk('auth/resetPassword', async ({ token, password }, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/auth/reset-password/${token}`, { password });
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Failed to reset password');
+  }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: { user: null, token: localStorage.getItem('token'), loading: false, error: null, isAuthenticated: false },
@@ -67,7 +85,14 @@ const authSlice = createSlice({
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null; state.token = null; state.isAuthenticated = false;
-      });
+      })
+      .addCase(forgotPassword.fulfilled, (state) => { state.loading = false; })
+      .addCase(forgotPassword.rejected, rejected)
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false; state.user = action.payload.user;
+        state.token = action.payload.token; state.isAuthenticated = true;
+      })
+      .addCase(resetPassword.rejected, rejected);
   },
 });
 

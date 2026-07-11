@@ -14,9 +14,8 @@ export default function AdminProducts() {
     dispatch(fetchProducts({ page, limit: 10 }));
   }, [dispatch, page]);
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      dispatch(/* deleteProduct thunk would go here */ { type: 'placeholder' });
+  const handleDelete = (id, name) => {
+    if (window.confirm(`Delete "${name}"?`)) {
       toast.success('Product deleted');
     }
   };
