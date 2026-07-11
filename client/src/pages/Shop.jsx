@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiSliders, FiX } from 'react-icons/fi';
-import { fetchProducts } from '../../redux/slices/productSlice';
+import { fetchProducts, fetchFeaturedProducts } from '../../redux/slices/productSlice';
+import { fetchCategories } from '../../redux/slices/categorySlice';
 import ProductCard from '../../components/products/ProductCard';
 import ProductGrid from '../../components/products/ProductGrid';
 import SEO from '../../components/common/SEO';
@@ -9,11 +10,13 @@ import SEO from '../../components/common/SEO';
 export default function Shop() {
   const dispatch = useDispatch();
   const { products, total, loading } = useSelector((s) => s.products);
+  const { categories } = useSelector((s) => s.categories);
   const [filters, setFilters] = useState({});
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
+    dispatch(fetchCategories());
     dispatch(fetchProducts({ ...filters, page }));
   }, [dispatch, filters, page]);
 
@@ -46,6 +49,9 @@ export default function Shop() {
                 <label>Category</label>
                 <select onChange={(e) => updateFilter('category', e.target.value || undefined)}>
                   <option value="">All</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat.slug}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="shop__filter-group">

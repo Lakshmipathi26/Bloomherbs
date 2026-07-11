@@ -1,10 +1,14 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { FiSave } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 
 export default function Settings() {
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('store');
+  const [saving, setSaving] = useState(false);
+
   const [form, setForm] = useState({
     storeName: 'BloomHerbs',
     storeEmail: 'support@bloomherbs.com',
@@ -19,21 +23,19 @@ export default function Settings() {
     smtpEmail: 'noreply@bloomherbs.com',
   });
 
-  const tabs = [
-    { id: 'store', label: 'Store Information' },
-    { id: 'tax', label: 'Tax Settings' },
-    { id: 'shipping', label: 'Shipping Settings' },
-    { id: 'payment', label: 'Payment Settings' },
-    { id: 'email', label: 'Email Settings' },
-    { id: 'profile', label: 'Admin Profile' },
-  ];
+  const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    toast.success('Settings saved successfully');
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await dispatch(/* saveSettings thunk */ { type: 'placeholder' });
+      toast.success('Settings saved');
+    } catch {
+      toast.error('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
   };
-
-  const updateField = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
   return (
     <>
@@ -42,49 +44,54 @@ export default function Settings() {
         <h1>Settings</h1>
         <div className="settings-layout">
           <div className="settings-tabs">
-            {tabs.map((tab) => (
-              <button key={tab.id} className={`settings-tab ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>
-                {tab.label}
+            {['store', 'tax', 'shipping', 'payment', 'email', 'profile'].map((tab) => (
+              <button key={tab} className={`settings-tab ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
+                {tab === 'store' && 'Store Information'}
+                {tab === 'tax' && 'Tax Settings'}
+                {tab === 'shipping' && 'Shipping Settings'}
+                {tab === 'payment' && 'Payment Settings'}
+                {tab === 'email' && 'Email Settings'}
+                {tab === 'profile' && 'Admin Profile'}
               </button>
             ))}
           </div>
-          <form className="settings-content" onSubmit={handleSubmit}>
+          <form className="settings-content" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
             {activeTab === 'store' && (
               <div className="settings-section">
                 <h3>Store Information</h3>
                 <div className="form-row">
-                  <div className="form-group"><label>Store Name</label><input value={form.storeName} onChange={(e) => updateField('storeName', e.target.value)} /></div>
-                  <div className="form-group"><label>Store Email</label><input type="email" value={form.storeEmail} onChange={(e) => updateField('storeEmail', e.target.value)} /></div>
+                  <div className="form-group"><label>Store Name</label><input value={form.storeName} onChange={(e) => update('storeName', e.target.value)} /></div>
+                  <div className="form-group"><label>Store Email</label><input type="email" value={form.storeEmail} onChange={(e) => update('storeEmail', e.target.value)} /></div>
                 </div>
-                <div className="form-group"><label>Store Phone</label><input value={form.storePhone} onChange={(e) => updateField('storePhone', e.target.value)} /></div>
-                <div className="form-group"><label>Store Address</label><textarea rows="3" value={form.storeAddress} onChange={(e) => updateField('storeAddress', e.target.value)} /></div>
-                <div className="form-group"><label>Currency</label><select value={form.currency} onChange={(e) => updateField('currency', e.target.value)}><option value="USD">USD ($)</option><option value="INR">INR (₹)</option><option value="EUR">EUR (€)</option></select></div>
+                <div className="form-group"><label>Store Phone</label><input value={form.storePhone} onChange={(e) => update('storePhone', e.target.value)} /></div>
+                <div className="form-group"><label>Store Address</label><textarea rows="3" value={form.storeAddress} onChange={(e) => update('storeAddress', e.target.value)} /></div>
+                <div className="form-group"><label>Currency</label><select value={form.currency} onChange={(e) => update('currency', e.target.value)}><option value="USD">USD ($)</option><option value="INR">INR (₹)</option><option value="EUR">EUR (€)</option></select></div>
               </div>
             )}
             {activeTab === 'tax' && (
               <div className="settings-section">
                 <h3>Tax Settings</h3>
-                <div className="form-group"><label>Default Tax Rate (%)</label><input type="number" value={form.taxRate} onChange={(e) => updateField('taxRate', e.target.value)} /></div>
+                <div className="form-group"><label>Default Tax Rate (%)</label><input type="number" value={form.taxRate} onChange={(e) => update('taxRate', e.target.value)} /></div>
               </div>
             )}
             {activeTab === 'shipping' && (
               <div className="settings-section">
                 <h3>Shipping Settings</h3>
-                <div className="form-group"><label>Free Shipping Minimum Order ($)</label><input type="number" value={form.shippingMinOrder} onChange={(e) => updateField('shippingMinOrder', e.target.value)} /></div>
-                <div className="form-group"><label>Default Shipping Fee ($)</label><input type="number" value={form.shippingFee} onChange={(e) => updateField('shippingFee', e.target.value)} /></div>
+                <div className="form-group"><label>Free Shipping Minimum Order ($)</label><input type="number" value={form.shippingMinOrder} onChange={(e) => update('shippingMinOrder', e.target.value)} /></div>
+                <div className="form-group"><label>Default Shipping Fee ($)</label><input type="number" value={form.shippingFee} onChange={(e) => update('shippingFee', e.target.value)} /></div>
               </div>
             )}
             {activeTab === 'payment' && (
               <div className="settings-section">
                 <h3>Payment Settings</h3>
-                <div className="form-group"><label>Razorpay Key ID</label><input value={form.razorpayKey} onChange={(e) => updateField('razorpayKey', e.target.value)} /></div>
+                <div className="form-group"><label>Razorpay Key ID</label><input value={form.razorpayKey} onChange={(e) => update('razorpayKey', e.target.value)} /></div>
               </div>
             )}
             {activeTab === 'email' && (
               <div className="settings-section">
                 <h3>Email Settings</h3>
-                <div className="form-group"><label>SMTP Host</label><input value={form.smtpHost} onChange={(e) => updateField('smtpHost', e.target.value)} /></div>
-                <div className="form-group"><label>SMTP Email</label><input type="email" value={form.smtpEmail} onChange={(e) => updateField('smtpEmail', e.target.value)} /></div>
+                <div className="form-group"><label>SMTP Host</label><input value={form.smtpHost} onChange={(e) => update('smtpHost', e.target.value)} /></div>
+                <div className="form-group"><label>SMTP Email</label><input type="email" value={form.smtpEmail} onChange={(e) => update('smtpEmail', e.target.value)} /></div>
               </div>
             )}
             {activeTab === 'profile' && (
@@ -97,7 +104,7 @@ export default function Settings() {
               </div>
             )}
             <div className="settings-actions">
-              <button type="submit" className="btn btn--primary"><FiSave size={16} /> Save Changes</button>
+              <button type="submit" className="btn btn--primary" disabled={saving}><FiSave size={16} /> {saving ? 'Saving...' : 'Save Changes'}</button>
             </div>
           </form>
         </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FiDownload, FiFilter } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 
 export default function Reports() {
@@ -8,7 +9,7 @@ export default function Reports() {
   const [reportType, setReportType] = useState('orders');
 
   const handleExport = (type) => {
-    alert(`Exporting ${type} from ${dateFrom} to ${dateTo}`);
+    toast.info(`Exporting ${type} report...`);
   };
 
   return (

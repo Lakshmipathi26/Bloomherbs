@@ -1,18 +1,21 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiArrowRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { FiArrowRight } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { fetchFeaturedProducts } from '../../redux/slices/productSlice';
+import { fetchCategories } from '../../redux/slices/categorySlice';
 import ProductCard from '../../components/products/ProductCard';
 import SEO from '../../components/common/SEO';
 
 export default function Home() {
   const dispatch = useDispatch();
   const { featured, loading } = useSelector((s) => s.products);
+  const { categories } = useSelector((s) => s.categories);
 
   useEffect(() => {
     dispatch(fetchFeaturedProducts());
+    dispatch(fetchCategories());
   }, [dispatch]);
 
   return (
@@ -87,21 +90,18 @@ export default function Home() {
           <h2>Shop by Category</h2>
           <p>Explore our curated collections</p>
         </div>
-        <div className="categories-preview">
-          {[
-            { name: 'Herbal Tea', icon: '🍵', to: '/shop?category=herbal-tea' },
-            { name: 'Coffee Beans', icon: '☕', to: '/shop?category=coffee-beans' },
-            { name: 'Coffee Powder', icon: '🥄', to: '/shop?category=coffee-powder' },
-            { name: 'Spices', icon: '🌶️', to: '/shop?category=spices' },
-            { name: 'Honey', icon: '🍯', to: '/shop?category=honey' },
-            { name: 'Pepper', icon: '🧂', to: '/shop?category=pepper' },
-          ].map((cat) => (
-            <Link key={cat.name} to={cat.to} className="category-card">
-              <span className="category-card__icon">{cat.icon}</span>
-              <span className="category-card__name">{cat.name}</span>
-            </Link>
-          ))}
-        </div>
+        {categories.length === 0 ? (
+          <p className="text-center" style={{ padding: '2rem' }}>No categories available yet.</p>
+        ) : (
+          <div className="categories-preview">
+            {categories.map((cat) => (
+              <Link key={cat._id} to={`/shop?category=${cat.slug}`} className="category-card">
+                <span className="category-card__icon">{cat.image?.url ? <img src={cat.image.url} alt={cat.name} /> : '📦'}</span>
+                <span className="category-card__name">{cat.name}</span>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="section container">

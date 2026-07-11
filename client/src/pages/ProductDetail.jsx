@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiStar, FiCheck, FiMinus, FiPlus } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { fetchProducts } from '../../redux/slices/productSlice';
+import { fetchProductReviews } from '../../redux/slices/reviewSlice';
+import { toggleWishlist, fetchWishlist } from '../../redux/slices/wishlistSlice';
 import { addToCart } from '../../redux/slices/cartSlice';
 import SEO from '../../components/common/SEO';
 
@@ -11,24 +13,52 @@ export default function ProductDetail() {
   const { slug } = useParams();
   const dispatch = useDispatch();
   const { products, loading } = useSelector((s) => s.products);
+  const { wishlist } = useSelector((s) => s.wishlist);
+  const { user } = useSelector((s) => s.auth);
   const [quantity, setQuantity] = useState(1);
+  const [localLoading, setLocalLoading] = useState(false);
 
   const product = products.find((p) => p.slug === slug);
 
   useEffect(() => {
-    if (products.length === 0 && !loading) {
-      dispatch(fetchProducts({}));
+    dispatch(fetchWishlist());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!product && !loading) {
+      setLocalLoading(true);
+      dispatch(fetchProducts({ slug })).finally(() => setLocalLoading(false));
     }
     window.scrollTo(0, 0);
   }, [dispatch, products.length, loading, slug]);
 
-  if (loading) return <div className="container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>Loading...</div>;
+  useEffect(() => {
+    if (product) {
+      dispatch(fetchProductReviews(product._id));
+    }
+  }, [dispatch, product]);
+
+  const { productReviews } = useSelector((s) => s.reviews);
+  const isWishlisted = wishlist?.products?.some((p) => (p._id || p) === product?._id);
+
+  if (localLoading || loading) return <div className="container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>Loading...</div>;
   if (!product) return <div className="container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>Product not found.</div>;
 
   const handleAddToCart = () => {
     dispatch(addToCart({ productId: product._id, quantity }));
     toast.success('Added to cart');
   };
+
+  const handleToggleWishlist = () => {
+    if (!user) {
+      toast.error('Please login to add to wishlist');
+      return;
+    }
+    dispatch(toggleWishlist(product._id));
+    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+  };
+
+  const discount = product.comparePrice ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100) : 0;
 
   return (
     <>
@@ -48,15 +78,15 @@ export default function ProductDetail() {
             {[1, 2, 3, 4, 5].map((star) => (
               <FiStar key={star} size={18} className={star <= (product.ratings || 0) ? 'star filled' : 'star'} />
             ))}
-            <span>({product.numReviews || 0} reviews)</span>
+            <span>({product.numReviews || productReviews?.length || 0} reviews)</span>
           </div>
           <div className="product-detail__price-row">
             <span className="product-detail__price">${product.price.toFixed(2)}</span>
             {product.comparePrice && (
-              <span className="product-detail__old-price">${product.comparePrice.toFixed(2)}</span>
-            )}
-            {product.comparePrice && (
-              <span className="product-detail__discount">{Math.round((product.comparePrice - product.price) / product.comparePrice * 100)}% OFF</span>
+              <>
+                <span className="product-detail__old-price">${product.comparePrice.toFixed(2)}</span>
+                <span className="product-detail__discount">{discount}% OFF</span>
+              </>
             )}
           </div>
           <p className="product-detail__description">{product.description}</p>
@@ -77,7 +107,24 @@ export default function ProductDetail() {
               <button className="btn btn--primary" onClick={handleAddToCart}>
                 <FiShoppingCart size={18} /> Add to Cart
               </button>
-              <button className="btn btn--outline" aria-label="Add to wishlist"><FiHeart size={18} /></button>
+              <button className={`btn btn--outline wishlist-btn ${isWishlisted ? 'active' : ''}`} onClick={handleToggleWishlist} aria-label="Add to wishlist">
+                <FiHeart size={18} />
+              </button>
+            </div>
+          )}
+
+          {productReviews?.length > 0 && (
+            <div className="reviews-section">
+              <h3>Customer Reviews</h3>
+              {productReviews.map((r) => (
+                <div key={r._id} className="review-card">
+                  <div className="review-header">
+                    <strong>{r.user?.name || 'Customer'}</strong>
+                    <span>{'★'.repeat(r.rating)}</span>
+                  </div>
+                  <p>{r.comment}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>

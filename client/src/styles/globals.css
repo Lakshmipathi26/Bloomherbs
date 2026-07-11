@@ -454,3 +454,44 @@ ul, ol { list-style: none; }
   .form-row { grid-template-columns: 1fr; }
 }
 
+/* ===== Shared Loading/Empty ===== */
+.loading-text { text-align: center; padding: 3rem; color: var(--text-muted); }
+.empty-text { text-align: center; padding: 3rem; color: var(--text-muted); }
+.cancel-btn { margin-top: 1rem; }
+
+/* ===== Reviews Section ===== */
+.reviews-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.reviews-section h3 { color: var(--primary); margin-bottom: 1rem; }
+.review-card { background: var(--bg-soft); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 0.75rem; }
+.review-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+.review-header strong { font-size: 0.9rem; }
+.review-header span { color: var(--accent); }
+.review-card p { font-size: 0.9rem; color: var(--text-muted); }
+
+/* ===== Checkout Summary ===== */
+.checkout-layout { display: grid; grid-template-columns: 1fr 340px; gap: 2rem; align-items: start; }
+.checkout-summary { background: var(--bg-soft); padding: 1.5rem; border-radius: var(--radius); position: sticky; top: calc(var(--header-height) + 1rem); }
+.checkout-summary h3 { margin-bottom: 1rem; color: var(--primary); }
+.summary-item { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; }
+.summary-item img { width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover; }
+.summary-item p { font-weight: 600; font-size: 0.9rem; }
+.summary-item span { font-size: 0.8rem; color: var(--text-muted); }
+.summary-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+.summary-rows div { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); }
+.summary-rows .total { font-weight: 700; color: var(--primary); font-size: 1.05rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+.default-badge { display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.5rem; background: var(--primary); color: #fff; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; }
+
+/* Status select in admin orders */
+.status-select { padding: 0.4rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); font-size: 0.85rem; }
+
+/* Placeholder text for analytics */
+.placeholder-text { color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 2rem; }
+
+/* More items badge */
+.more-items { color: var(--text-muted); font-size: 0.85rem; }
+
+@media (max-width: 768px) {
+  .checkout-layout { grid-template-columns: 1fr; }
+  .checkout-summary { position: static; }
+}
+
