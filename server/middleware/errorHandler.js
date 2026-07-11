@@ -1,4 +1,5 @@
 const AppError = require('../utils/AppError');
+const logger = require('../utils/logger');
 
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
@@ -29,6 +30,8 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'TokenExpiredError') {
     error = new AppError('Token expired', 401);
   }
+
+  logger.error(`Error ${error.statusCode}: ${error.message}`, error);
 
   res.status(error.statusCode).json({
     success: false,

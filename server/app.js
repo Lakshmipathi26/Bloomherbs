@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const env = require('./config/env');
 
 const errorHandler = require('./middleware/errorHandler');
 
@@ -18,7 +19,7 @@ app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: env.clientUrl,
   credentials: true,
 }));
 
@@ -41,10 +42,14 @@ app.use(xssClean());
 
 // Compression & logging
 app.use(compression());
-if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
+if (env.env === 'development') app.use(morgan('dev'));
 
 // Static uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Health check
+const { healthCheck } = require('./controllers/healthController');
+app.get('/api/v1/health', healthCheck);
 
 // Routes
 app.use('/api/v1/auth', require('./routes/authRoutes'));
@@ -57,11 +62,6 @@ app.use('/api/v1/orders', require('./routes/orderRoutes'));
 app.use('/api/v1/reviews', require('./routes/reviewRoutes'));
 app.use('/api/v1/coupons', require('./routes/couponRoutes'));
 app.use('/api/v1/payments', require('./routes/paymentRoutes'));
-
-// Health check
-app.get('/api/v1/health', (req, res) => {
-  res.json({ success: true, message: 'BloomHerbs API is running', env: process.env.NODE_ENV });
-});
 
 // 404
 app.use((req, res) => {
