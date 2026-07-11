@@ -46,6 +46,26 @@ export const clearCart = createAsyncThunk('cart/clear', async (_, { rejectWithVa
   }
 });
 
+export const applyCoupon = createAsyncThunk('cart/applyCoupon', async (code, { rejectWithValue }) => {
+  try {
+    const { data } = await api.post('/cart/coupon', { code });
+    const cartData = await api.get('/cart');
+    return cartData.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message);
+  }
+});
+
+export const removeCoupon = createAsyncThunk('cart/removeCoupon', async (_, { rejectWithValue }) => {
+  try {
+    await api.delete('/cart/coupon/remove');
+    const cartData = await api.get('/cart');
+    return cartData.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message);
+  }
+});
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState: { cart: null, loading: false, error: null },
@@ -58,7 +78,15 @@ const cartSlice = createSlice({
       .addCase(addToCart.fulfilled, setCart)
       .addCase(updateCartItem.fulfilled, setCart)
       .addCase(removeFromCart.fulfilled, setCart)
-      .addCase(clearCart.fulfilled, setCart);
+      .addCase(clearCart.fulfilled, setCart)
+      .addCase(applyCoupon.fulfilled, (state, action) => {
+        state.cart = action.payload.cart || state.cart;
+        state.loading = false;
+      })
+      .addCase(removeCoupon.fulfilled, (state, action) => {
+        state.cart = action.payload.cart || state.cart;
+        state.loading = false;
+      });
   },
 });
 
